@@ -31,7 +31,7 @@
 	</bean>
 	
 	<!--简单的一个master和一个slaver 读写分离的数据源 -->
-	<bean id="routingDs" class="com.test.rwmybatis.RoutingDataSource">
+	<bean id="routingDS" class="com.test.rwmybatis.RoutingDataSource">
 	    <property name="targetDataSources">
 	         <map key-type="java.lang.String">
 	             <entry key="read" value-ref="readDS"></entry>
@@ -51,6 +51,8 @@
 	              <ref bean="readDS"/>
 	          </list>
 	      </property>
+	      <property name="readKey" value="READ"></property>
+	      <property name="writeKey" value="WRITE"></property>
 	</bean>
 	
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -65,18 +67,18 @@
 		</property>
 	</bean>
 	
-	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate"> 
+	<bean id="sqlSessionTemplate" class="com.test.rwmybatis.RWSqlSessionTemplate"> 
       <constructor-arg ref="sqlSessionFactory" />
     </bean>
 	<!-- 通过扫描的模式，扫描目录下所有的mapper， 根据对应的mapper.xml为其生成代理类-->
-	<bean id="mapper" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.taofang.smc.persistence.write.admin" />
+	<bean id="mapper" class="com.test.rwmybatis.RWMapperScannerConfigurer">
+		<property name="basePackage" value="com.test.rwmybatis.mapper" />
 		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"></property>
 	</bean>
 
-	<bean id="monitor" class="org.springframework.aop.interceptor.PerformanceMonitorInterceptor"></bean>
-	<aop:config>
-	   <aop:pointcut expression="execution(* com.taofang.smc.persistence..*.*(..))"  id="my_pc"/>
-	   <aop:advisor advice-ref="monitor" pointcut-ref="my_pc"/>
-	</aop:config>
+<!-- 	<bean id="monitor" class="org.springframework.aop.interceptor.PerformanceMonitorInterceptor"></bean> -->
+<!-- 	<aop:config> -->
+<!-- 	   <aop:pointcut expression="execution(* com.taofang.smc.persistence..*.*(..))"  id="my_pc"/> -->
+<!-- 	   <aop:advisor advice-ref="monitor" pointcut-ref="my_pc"/> -->
+<!-- 	</aop:config> -->
 </beans>

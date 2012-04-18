@@ -77,6 +77,22 @@ public abstract class AbstractRWRoutingDataSource extends AbstractDataSource imp
         
     }
     
+    public void setReadDataSoures(List<Object> readDataSoures) {
+        this.readDataSoures = readDataSoures;
+    }
+
+    public void setReadKey(String readKey) {
+        this.readKey = readKey;
+    }
+
+    public void setWriteKey(String writeKey) {
+        this.writeKey = writeKey;
+    }
+
+    public void setWriteDataSource(Object writeDataSource) {
+        this.writeDataSource = writeDataSource;
+    }
+
     protected DataSource determineTargetDataSource() {
         Assert.notNull(this.resolvedReadDataSources, "DataSource router not initialized");
         String lookupKey = determineCurrentLookupKey();
