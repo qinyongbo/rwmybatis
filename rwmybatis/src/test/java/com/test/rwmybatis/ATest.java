@@ -9,7 +9,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.test.rwmybatis.mapper.TestMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:applicationContext-common.xml"})
+@ContextConfiguration(locations={"classpath:applicationContext-plugin.xml"})
 public class ATest {
 
     @Autowired
