@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.AbstractDataSource;
-import org.springframework.jdbc.datasource.ConnectionProxy;
 import org.springframework.jdbc.datasource.lookup.DataSourceLookup;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.util.Assert;
@@ -23,6 +22,10 @@ import org.springframework.util.Assert;
 /**
  * @author Hailei
  * 读写分离的数据源，可配置一个write和多个read-only的数据源，并提供对read-only数据源做负载均衡的接口
+ * 借鉴了LazyConnectionDataSourceProxy的connection Proxy实现方式
+ * 没有去检查所有注册的数据源的conneciton的isolation和commit的默认属性。如有需要，在初始化的过程中检测
+ * 该类仍然为一个抽象类，需要实现load balance的策略
+ *
  *
  */
 public abstract class AbstractRWRoutingDataSourceProxy extends AbstractDataSource implements InitializingBean {
@@ -42,6 +45,9 @@ public abstract class AbstractRWRoutingDataSourceProxy extends AbstractDataSourc
     private DataSource resolvedWriteDataSource;
     //read-only data source的数量,做负载均衡的时候需要
     private int readDsSize;
+    
+    private boolean defaultAutoCommit = true;
+    private int defaultTransactionIsolation = Connection.TRANSACTION_READ_COMMITTED;
     
     private DataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
     
@@ -217,10 +223,10 @@ public abstract class AbstractRWRoutingDataSourceProxy extends AbstractDataSourc
                     return null;
                 }
                 else if (method.getName().equals("getTransactionIsolation")) {
-//                    if (this.transactionIsolation != null) {
-//                        return this.transactionIsolation;
-//                    }
-                    return null;
+                    if (this.transactionIsolation != null) {
+                        return this.transactionIsolation;
+                    }
+                    return defaultTransactionIsolation;
                     // Else fetch actual Connection and check there,
                     // because we didn't have a default specified.
                 }
@@ -229,10 +235,9 @@ public abstract class AbstractRWRoutingDataSourceProxy extends AbstractDataSourc
                     return null;
                 }
                 else if (method.getName().equals("getAutoCommit")) {
-//                    if (this.autoCommit != null) {
-//                        return this.autoCommit;
-//                    }
-                    return null;
+                    if (this.autoCommit != null) 
+                        return this.autoCommit;
+                    return defaultAutoCommit;
                     // Else fetch actual Connection and check there,
                     // because we didn't have a default specified.
                 }
