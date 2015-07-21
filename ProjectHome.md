@@ -1,0 +1,13 @@
+mybatis+spring 实现数据库读写分离。
+mybatis中的每一个mappedstatement，都有一个CommandType,select或者insert update delete这为我们读写分离提供良好的基础，思路也很简单
+
+配置改动较少的实现：
+实现一个connection的代理，在创建sqlsession返回一个conneciton代理，在调用statementhandler创建PrepareStatement之前基本用不到对connection，除了获取autoCommit的信息，所以这个给了我们使用代理的机会，然后在prepare方法中根据statement的command type在路由到真实的connection
+请参照代码 RWPlugin +  AbstractRWRoutingDataSourceProxy
+该实现借鉴了LazyConnectionDataSourceProxy
+
+
+
+
+
+无奈于内部类的使用，无法重载SqlSessionTemplate的sqlsessionProxy，只能原封照搬了很多东西在此基础上做了一点修改。
